@@ -16,6 +16,10 @@ class TranspositionTable:
     def lookup(self, state):
         key = str(state)
         return self.table.get(key, False)
+    
+    def clear(self):
+        # empty transposition table for next round...
+        self.table = dict()
 
 # if use of depth, coupled with heuristics
     
@@ -34,6 +38,7 @@ class MiniMax:
     def move(self, board):
         # determines col to move given position!
         _, move = minimax(board, self.depth, False, MIN, MAX, self.transpositionTable, heuristic=self.heuristic) # False since we always pick bot for minimizer
+        self.transpositionTable.clear()
         return move
 
     def evaluate(self, board, player):
@@ -44,6 +49,13 @@ class MiniMax:
         for kernel in detection_kernels:
             activations += (convolve2d(board == 1, kernel, mode="valid") == 3).sum()
             activations -= (convolve2d(board == 2, kernel, mode="valid") == 3).sum()
+        
+        value = np.tanh(activations)
+
+        if value > 0:
+            value += -0.01
+        else:
+            value += +0.01
         
         return np.tanh(activations)
     

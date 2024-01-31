@@ -3,7 +3,6 @@ import pygame
 import sys
 import math
 from minimax import MiniMax
-import mlflow
 
 agent = MiniMax(depth=7)
  
@@ -28,16 +27,11 @@ while not game_over:
         if event.type == pygame.MOUSEMOTION:
             pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
             posx = event.pos[0]
-            # if turn == 0:
             pygame.draw.circle(screen, RED, (posx, int(SQUARESIZE/2)), RADIUS)
-            # else: 
-            #     pygame.draw.circle(screen, YELLOW, (posx, int(SQUARESIZE/2)), RADIUS)
         pygame.display.update()
  
         if event.type == pygame.MOUSEBUTTONDOWN:
             pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
-            #print(event.pos)
-            # Ask for Player 1 Input
             posx = event.pos[0]
             col = int(math.floor(posx/SQUARESIZE))
 
