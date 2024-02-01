@@ -31,13 +31,14 @@ detection_kernels = [horizontal_kernel, vertical_kernel, diag1_kernel, diag2_ker
 
 class MiniMax:
 
-    def __init__(self, depth=4) -> None:
+    def __init__(self, pl, depth=4):
+        self.pl = pl
         self.transpositionTable = TranspositionTable()
         self.depth = depth
 
     def move(self, board):
         # determines col to move given position!
-        _, move = minimax(board, self.depth, False, MIN, MAX, self.transpositionTable, heuristic=self.heuristic) # False since we always pick bot for minimizer
+        _, move = minimax(board, self.depth, self.pl == 1, MIN, MAX, self.transpositionTable, heuristic=self.heuristic) # False since we always pick bot for minimizer
         self.transpositionTable.clear()
         return move
 

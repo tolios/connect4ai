@@ -25,8 +25,6 @@ diag2_kernel = np.fliplr(diag1_kernel)
 detection_kernels = [horizontal_kernel, vertical_kernel, diag1_kernel, diag2_kernel]
  
 size = (width, height)
-
-screen = pygame.display.set_mode(size)
  
 RADIUS = int(SQUARESIZE/2 - 5)
  
@@ -52,7 +50,7 @@ def winning_move(board, player):
             return True
     return False
 
-def draw_board(board):
+def draw_board(board, screen):
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
