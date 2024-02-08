@@ -58,7 +58,7 @@ class MiniMax:
         else:
             value += +0.01
         
-        return np.tanh(activations)
+        return 0.98*np.tanh(activations)
     
 def minimax(board, depth, max_player, alpha, beta, transpositionTable, heuristic = None):
 
@@ -70,11 +70,11 @@ def minimax(board, depth, max_player, alpha, beta, transpositionTable, heuristic
     value, finished = value_position(sim_board)
 
     if finished:
-        return value, None
+        return 0.99*value, None
     
     #if depth = 0, close
     if depth == 0 and heuristic:
-        return heuristic(sim_board), None
+        return 0.99*heuristic(sim_board), None
 
     
     value = MIN if max_player else MAX
@@ -113,4 +113,4 @@ def minimax(board, depth, max_player, alpha, beta, transpositionTable, heuristic
             # store values!
             transpositionTable.store(sim_board, v)
 
-    return value, action
+    return 0.99*value, action

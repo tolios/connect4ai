@@ -49,10 +49,11 @@ def duel(agent1, agent2, rounds = 10):
 
 if __name__ == "__main__":
 
-    agent1 = MCTS(1, samples=1000, c = 2)
+    agent1 = MCTS(1, samples=2000, c = 2)
     # agent1 = MiniMax(1)
-    agent2 = TreeStrap(2, hidden_dim=100, lr=0.0001, weight_decay=0.0000001)
+    #agent2 = RootStrap(2, depth=5, hidden_dim=100, lr=0.00001, weight_decay=0.0, tau=0.1)
+    agent2 = MCTS(2, samples=2000, c = 2)
 
-    agent2.self_play(iters=100)
+    #agent2.self_play(iters=50)
 
     print(duel(agent1, agent2, rounds=20))

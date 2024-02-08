@@ -103,11 +103,11 @@ class RootStrap:
             with torch.no_grad():
                 x = board_transform(board)
                 x = self.target_Hnn(x)
-                return x.numpy().item()
+                return 0.98*x.numpy().item()
         else:
             x = board_transform(board)
             x = self.Hnn(x)
-            return x
+            return 0.98*x
     
     def self_play(self, iters = 1000):
 
@@ -193,11 +193,11 @@ def minimax(board, depth, max_player, alpha, beta, heuristic = None, epsilon = 0
     value, finished = value_position(sim_board)
 
     if finished:
-        return value, None
+        return 0.99*value, None
     
     #if depth = 0, close
     if depth == 0 and heuristic:
-        return heuristic(sim_board), None
+        return 0.99*heuristic(sim_board), None
 
     
     value = MIN if max_player else MAX
@@ -238,4 +238,4 @@ def minimax(board, depth, max_player, alpha, beta, heuristic = None, epsilon = 0
                 value = v
                 break
 
-    return value, action
+    return 0.99*value, action #trick to prioritize moves closer if winning, away if losing

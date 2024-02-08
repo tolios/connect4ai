@@ -7,10 +7,10 @@ from rootstrap import RootStrap
 from treestrap import TreeStrap
 from mcts import MCTS
 
-# agent = MCTS(2, samples=2000, c = 1)
-agent = RootStrap(2, depth = 4, hidden_dim=100, lr=0.0001, epsilon=0.0)
+agent = MCTS(2, samples=2000, c = 1)
+# agent = RootStrap(2, depth = 4, hidden_dim=100, lr=0.0001, epsilon=0.0)
 # agent = TreeStrap(2, depth=4, hidden_dim=128, lr=0.00001, weight_decay=0, T=5, n_max=4)
-agent.self_play(iters=0)
+# agent.self_play(iters=50)
 
 human_pl = 1 if agent.pl == 2 else 2
 

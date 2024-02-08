@@ -1,7 +1,6 @@
 from connect4 import get_next_open_row, drop_piece, get_available_moves, winning_move
 from math import sqrt, log
 import random
-from tqdm import tqdm
 
 class MCTS:
 
@@ -14,14 +13,29 @@ class MCTS:
         self.nodes = dict()
         self.end_nodes = dict()
         self.n = 0
-
+    
     def move(self, board):
+        return self.mcts(board, self.pl)[0]
+
+    def evaluate(self, board, player):
+        return self.mcts(board, player)[1]
+
+    def mcts(self, board, start_pl):
+        if winning_move(board, 1):
+            return None, 1
+        elif winning_move(board, 2):
+            return None, -1
+        else:
+            if not get_available_moves(board):
+                return None, 0
+        
         # set up root info
         # n, w
         self.nodes[0] = (0, 0)
         for _ in range(self.samples):
             sim_board = board.copy()
-            leaf, trace, pl = self.select(sim_board)
+            # returns leaf, trace and starting pl to play
+            leaf, trace, pl = self.select(sim_board, start_pl)
             # check if leaf is an end node...
             if not (leaf in self.end_nodes):
                 # trace doesn't contain leaf! (yet)
@@ -32,17 +46,16 @@ class MCTS:
                     trace.append(leaf)
                     leaf = self.expand(sim_board, leaf, pl)
                     # check if end node...
-                    if not get_available_moves(sim_board):
-                        # no moves...
-                        if winning_move(sim_board, pl):
-                            v_tot = 1 if pl == 1 else -1
-                            n_tot = 1
-                        else:
-                            v_tot = 0
-                            n_tot = 1
+                    if winning_move(sim_board, pl):
+                        v_tot = 1 if pl == 1 else -1
+                        n_tot = 1
+                        self.end_nodes[leaf] = v_tot
+                    elif not get_available_moves(sim_board):
+                        v_tot = 0
+                        n_tot = 1
                         self.end_nodes[leaf] = v_tot
                     else:
-
+                        # typical rollout
                         # flip player
                         pl = 2 if pl == 1 else 1
 
@@ -54,25 +67,36 @@ class MCTS:
                         v_tot = v_tot/n_tot
                 else:
                     # perform rollout(s)
-                    v_tot = 0
-                    n_tot = self.n_rollout
-                    for _ in range(n_tot):
-                        v_tot += simulate(sim_board, pl)
-                    v_tot = v_tot/n_tot
+                    # but first check if opp won
+                    if winning_move(sim_board, 1 if pl == 2 else 2):
+                        v_tot = -1 if pl == 1 else 1
+                        n_tot = 1
+                        self.end_nodes[leaf] = v_tot
+                    elif not get_available_moves(sim_board):
+                        v_tot = 0
+                        n_tot = 1
+                        self.end_nodes[leaf] = v_tot
+                    else:
+                        v_tot = 0
+                        n_tot = self.n_rollout
+                        for _ in range(n_tot):
+                            v_tot += simulate(sim_board, pl)
+                        v_tot = v_tot/n_tot
             else:
                 n_tot = 1
                 v_tot = self.end_nodes[leaf]
 
             self.backprop(n_tot, v_tot, leaf, trace)
         # pick best move
-        move = self.best_move(self.pl)
+        move = self.best_move(start_pl)
+        # get value...
+        n, w = self.nodes[0]
         # delete all info ...
         self.empty()
-        return move
+        return move, w/n
     
-    def select(self, sim_board):
-        # start player (bot) and root node
-        pl = self.pl
+    def select(self, sim_board, pl):
+        # start player
         node = 0
         trace = []
         # goes down the tree to find best root.
@@ -118,27 +142,20 @@ class MCTS:
     def backprop(self, n_new, w_new, leaf, trace):
         # only here the actual leaf will join
         trace.append(leaf)
-        for node in trace:
+        for i, node in enumerate(trace[::-1]):
             n, w = self.nodes[node]
             n += n_new
-            w += w_new
+            w += w_new * (0.99**(i))
             self.nodes[node] = (n, w)
 
     def best_move(self, pl):
-        # starting from root, pick action with best value (for pl 2 is neg)
+        # starting from root, pick action with most visits!
         best = -10000
         best_move = None
-        s = 1 if pl == 1 else -1
         for child, move in self.tree[0]:
-            n, w = self.nodes[child]
-
-            if n != 0:
-                pick = (s)*(w/n)
-            else:
-                pick = 0
-
-            if pick > best:
-                best = pick
+            n = self.nodes[child][0]
+            if n > best:
+                best = n
                 best_move = move
         return best_move
     
@@ -150,7 +167,7 @@ class MCTS:
 
 def UCB1(n, w, N, c, p = 1):
     if n != 0:
-        return p*(w/n) + c*sqrt(log(N)/n)
+        return (p*(w/n)) + c*sqrt(log(N)/n)
     else:
         return 1000
 
@@ -167,11 +184,3 @@ def simulate(board, pl):
         drop_piece(sim_board, get_next_open_row(sim_board, move), move, pl)
 
         pl = 1 if pl == 2 else 2
-
-# board = create_board()
-
-# a = MCTS(samples=100000, n_rollout=1)
-
-# # TODO FIX GAME ENDING (win draw loss)
-# a.move(board)
-# print()

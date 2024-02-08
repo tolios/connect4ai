@@ -103,11 +103,11 @@ class TreeStrap:
             with torch.no_grad():
                 x = board_transform(board)
                 x = self.target_Hnn(x)
-                return x.numpy().item()
+                return 0.98*x.numpy().item()
         else:
             x = board_transform(board)
             x = self.Hnn(x)
-            return x
+            return 0.98*x
     
     def self_play(self, iters = 1000):
 
@@ -190,11 +190,11 @@ def minimax(board, depth, max_player, heuristic, loss, train = False, epsilon = 
 
     if finished:
         loss += (heuristic(sim_board, train=train) - torch.tensor(value, dtype = float))**2
-        return value, None, loss
+        return 0.99*value, None, loss
     
     #if depth = 0, close
     if depth == 0 and heuristic:
-        return heuristic(sim_board), None, loss
+        return 0.99*heuristic(sim_board), None, loss
 
     
     value = MIN if max_player else MAX
@@ -230,7 +230,7 @@ def minimax(board, depth, max_player, heuristic, loss, train = False, epsilon = 
     # having found the value of the upstream node, it adds the losses of its prediction!
     loss += (heuristic(board, train=train) - torch.tensor(value, dtype = float))**2
 
-    return value, action, loss
+    return 0.99*value, action, loss
 
 
 #TODO - Add some sort of epsilon greedy selection in training!
