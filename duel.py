@@ -1,6 +1,8 @@
 from connect4 import create_board, is_valid_location, get_next_open_row, drop_piece, winning_move, get_available_moves
 from minimax import MiniMax
 from mcts import MCTS
+from rootstrap import RootStrap
+from treestrap import TreeStrap
 from tqdm import tqdm
 
 def duel(agent1, agent2, rounds = 10):
@@ -48,6 +50,9 @@ def duel(agent1, agent2, rounds = 10):
 if __name__ == "__main__":
 
     agent1 = MCTS(1, samples=1000, c = 2)
-    agent2 = MCTS(2, samples=1000, c = 1)
+    # agent1 = MiniMax(1)
+    agent2 = TreeStrap(2, hidden_dim=100, lr=0.0001, weight_decay=0.0000001)
 
-    print(duel(agent1, agent2, rounds=100))
+    agent2.self_play(iters=100)
+
+    print(duel(agent1, agent2, rounds=20))
